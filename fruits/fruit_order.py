@@ -1,14 +1,14 @@
-from apple import Apple
-from apricot import Apricot
-from banana import Banana
-from cherry import Cherry
-from coco import Coco
-from eggplant import Eggplant
-from lime import Lime
-from melon import Melon
-from peach import Peach
-from pineapple import Pineapple
-from watermelon import Watermelon
+from fruits.apple import Apple
+from fruits.apricot import Apricot
+from fruits.banana import Banana
+from fruits.cherry import Cherry
+from fruits.coco import Coco
+from fruits.eggplant import Eggplant
+from fruits.lime import Lime
+from fruits.melon import Melon
+from fruits.peach import Peach
+from fruits.pineapple import Pineapple
+from fruits.watermelon import Watermelon
 
 fruit_order = [
     Eggplant,

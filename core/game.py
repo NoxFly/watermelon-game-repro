@@ -14,37 +14,42 @@ class GameState(Enum):
 class Game:
     def __init__(self, config):
         self.config = config
-        self.screen = pygame.display.set_mode(self.config.WINDOW_SIZE)
-        self.clock = pygame.time.Clock()
-        self.running = False
-        self.state = GameState.NONE
+        
+        self.screen: pygame.Surface = pygame.display.set_mode(self.config.WINDOW_SIZE)
+        pygame.display.set_caption(self.config.TITLE)
+
+        if hasattr(self.config, "ICON"):
+            icon = pygame.image.load(self.config.ICON).convert_alpha()
+            pygame.display.set_icon(icon)
+
+        self.clock: pygame.time.Clock = pygame.time.Clock()
+        
+        self.running: bool = False
+        self.state: GameState = GameState.NONE
 
         self.renderer = Renderer()
-        self.scene = Scene(self.config, self.setState)
+        self.scene = Scene(self.config, self.setState, self.setRunningState)
 
-    def setState(self, state: GameState):
+    def setState(self, state: GameState) -> None:
         self.state = state
 
-    def run(self):
+    def setRunningState(self, state: bool) -> None:
+        self.running = state
+
+    def run(self) -> None:
         self.running = True
         self.state = GameState.START
 
         while self.running:
+            deltaTime = self.clock.tick(self.config.FPS) / 1000.0
+
             # game update & rendering
-            self.scene.update()
+            self.scene.update(deltaTime)
             self.renderer.render(self.screen, self.scene)
 
-            self.clock.tick(self.config.FPS)
             
             # process events
-            self.processEvents()
+            self.scene.processEvents()
 
         pygame.display.quit()
         pygame.quit()
-
-    def processEvents(self):
-        events = pygame.event.get()
-
-        for event in events:
-            if event.type == pygame.QUIT:
-                self.running = False

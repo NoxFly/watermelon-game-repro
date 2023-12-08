@@ -1,14 +1,44 @@
-from pygame import Color
+from pygame import Color, Surface, Rect
 from pygame.draw import circle
+from pygame.transform import scale
+from typing import List
+from core.vector import Vector2
 
 class Fruit:
-    def __init__(self, color: Color, size: float = 2.0, position: tuple[int, int] = (0, 0)):
-        self.position = position
-        self.color = color
-        self.size = size
+    image: Surface = None
 
-    def update(self):
-        pass
+    def __init__(self, color: Color, size: float = 2.0, position: Vector2 = Vector2(0, 0)):
+        self.static: bool = True
+        self.name: str = "Fruit"
+        
+        self.sprite: tuple[int, int, int, int]  = (0, 0, 1, 1) # x, y, width, height in the image
 
-    def draw(self, surface):
-        circle(surface, self.color, self.position, self.size / 2)
+        self.color: Color = color
+        self.position: Vector2 = position
+        self.size: float = size
+
+        self.speed: float = 0.0
+        self.acceleration: float = 1000.0
+
+    def update(self, fruits: 'List[Fruit]', deltaTime: float, bounds: tuple[int, int]) -> None:
+        # if the fruit is a static object, don't update it
+        if self.static:
+            return
+        
+        # apply physics
+        if self.position.y < bounds[1] - self.size:
+            self.speed += self.acceleration * deltaTime
+            self.position.y += 0.5 * self.speed * deltaTime
+
+            # print(self.position.y)
+
+
+    def draw(self, surface: Surface) -> None:
+        fruit_image = Fruit.image.subsurface(Rect(self.sprite))
+        fruit_image = scale(fruit_image, (int(self.size), int(self.size)))
+        
+        print(self.position.y, self.position.tuple())
+        surface.blit(fruit_image, self.position.tuple())
+        
+        # debug indicator
+        # circle(surface, Color(255, 0, 0), self.position.tuple(), self.size / 2)
