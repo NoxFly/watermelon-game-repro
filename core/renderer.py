@@ -12,7 +12,9 @@ class Renderer:
 
         # mouse position = next fruit deposit
         line(screen, (255, 255, 255, 128), (scene.mousePosition[0], 0), (scene.mousePosition[0], scene.config.WINDOW_SIZE[1]))
-        scene.currentFruit.draw(screen)
+        
+        if scene.currentFruit:
+            scene.currentFruit.draw(screen)
 
         for fruit in scene.fruits:
             fruit.draw(screen)

@@ -28,7 +28,8 @@ class Scene:
         for fruit in self.fruits:
             fruit.update(self.fruits, deltaTime, self.config.WINDOW_SIZE)
 
-        self.currentFruit.position.set(self.mousePosition[0] - self.currentFruit.size / 2, self.config.FRUIT_DEPOSIT_Y)
+        if self.currentFruit:
+            self.currentFruit.position.set(self.mousePosition[0] - self.currentFruit.size / 2, self.config.FRUIT_DEPOSIT_Y)
 
 
     def processEvents(self) -> None:
@@ -41,20 +42,19 @@ class Scene:
             # if the event is a left click
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 if not self.isInDeposit:
-                    print("Click")
                     self.isInDeposit = True
                     self.currentFruit.static = False
                     self.fruits.append(self.currentFruit)
-                    self.createNewCurrentFruit()
+                    self.currentFruit = None
 
-                    threading.Thread(target=lambda: (time.sleep(2), setattr(self, 'isInDeposit', False))).start()
+                    threading.Thread(target=lambda: (time.sleep(1), self.createNewCurrentFruit())).start()
 
 
     def createNewCurrentFruit(self) -> None:
         fruit = self.randomFruit()
         fruit.position.set(self.mousePosition[0], self.config.FRUIT_DEPOSIT_Y)
         self.currentFruit = fruit
-        print("New fruit: " + fruit.name)
+        self.isInDeposit = False
 
 
     def randomFruit(self) -> Fruit:
