@@ -1,8 +1,8 @@
 from pygame import Color, Surface, Rect
 from pygame.draw import circle
 from pygame.transform import scale
-from typing import List
 from core.vector import Vector2
+from core.quadtree import Quadtree
 
 class Fruit:
     image: Surface = None
@@ -20,15 +20,32 @@ class Fruit:
         self.speed: float = 0.0
         self.acceleration: float = 1000.0
 
-    def update(self, fruits: 'List[Fruit]', deltaTime: float, bounds: tuple[int, int]) -> None:
+    def update(self, fruits: Quadtree, deltaTime: float, bounds: tuple[int, int], maxRadius: float) -> None:
         # if the fruit is a static object, don't update it
         if self.static:
             return
         
-        # apply physics
+        # apply gravity
         if self.position.y < bounds[1] - self.size:
             self.speed += self.acceleration * deltaTime
             self.position.y += 0.5 * self.speed * deltaTime
+
+        nearby_fruits = fruits.queryRadius(self.position.x, self.position.y, self.size/2 + maxRadius)
+
+        for point in nearby_fruits:
+            fruit = point.ref
+
+            if fruit is self:
+                continue
+
+            distance = self.position.dist(fruit.position)
+
+            if distance < self.size + fruit.size:  # collision detected
+                direction = self.position.sub(fruit.position)
+                direction.normalize_ip()
+                force = direction.mult(100)  # force factor
+                self.speed -= force.y
+                fruit.speed += force.y
 
 
     def draw(self, surface: Surface) -> None:

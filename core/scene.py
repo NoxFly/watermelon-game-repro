@@ -2,6 +2,7 @@ import pygame, threading, time
 from typing import List
 from random import randint
 from pygame import mouse, image
+from core.quadtree import Quadtree, QuadtreePoint
 from fruits.fruit import Fruit
 from fruits.fruit_order import fruit_order
 
@@ -25,8 +26,19 @@ class Scene:
     def update(self, deltaTime: float) -> None:
         self.mousePosition = mouse.get_pos()
 
+        qt = Quadtree(0, 0, self.config.WINDOW_SIZE[0], self.config.WINDOW_SIZE[1], 4)
+
+        maxFruitSize = 0
+
         for fruit in self.fruits:
-            fruit.update(self.fruits, deltaTime, self.config.WINDOW_SIZE)
+            c = QuadtreePoint(fruit.position.x, fruit.position.y, fruit.size, fruit)
+            qt.insert(c)
+
+            if fruit.size > maxFruitSize:
+                maxFruitSize = fruit.size
+
+        for fruit in self.fruits:
+            fruit.update(qt, deltaTime, self.config.WINDOW_SIZE, maxFruitSize/2)
 
         if self.currentFruit:
             self.currentFruit.position.set(self.mousePosition[0] - self.currentFruit.size / 2, self.config.FRUIT_DEPOSIT_Y)
